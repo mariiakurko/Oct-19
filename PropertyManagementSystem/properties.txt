@@ -1,0 +1,20 @@
+1001, 123 Beach Ave, Condo, 185.00, 2, true, John Smith
+1002, 456 Ocean Dr, House,250.00, 3, true, Mary Johnson
+1003, 789 Palm St, Apartment,120.00, 1, false, David Brown
+1004, 321 Sunset Blvd, Condo,195.00, 2, true, Sarah Wilson
+1005, 654 Bay Rd,House, 300.00, 4, true, James Davis
+1006, 987 Coastal Way, Townhouse, 175.00, 2, false, Emily Taylor
+1007, 147 Dolphin Ct, Condo,210.00, 2, true, Michael Lee
+1008, 258 Seaside Ln, Apartment,135.00, 1,true,Jessica White
+1009, 369 Harbor St, House,275.00, 3, false, Robert Harris
+1010, 741 Marina Dr, Condo,225.00, 2, true, Jennifer Clark
+1011, 852 Beachfront Rd, House, 350.00, 4, true, William Lewis
+1012, 963 Sandpiper Ave, Apartment, 145.00, 1, false, Amanda Walker
+1013, 159 Gulf View Dr, Condo, 230.00, 3, true, Daniel Hall
+1014, 267 Pelican St, Townhouse, 190.00, 2, true, Olivia Allen
+1015, 375 Coral Way, House, 320.00, 4, false, Matthew Young
+1016, 483 Paradise Ln, Condo, 205.00, 2, true, Sophia King
+1017, 591 Lagoon Dr, Apartment, 155.00, 1, true,Christopher Scott
+1018, 609 Shoreline Ave, House, 280.00, 3, false,Grace Green
+1019, 717 Island Ct, Condo, 240.00, 2, true, Andrew Baker
+1020, 825 Ocean Breeze St, Townhouse, 200.00, 3, true, Natalie Adams
