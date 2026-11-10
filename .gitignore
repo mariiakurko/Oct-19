@@ -1,3 +1,5 @@
 .DS_Store
 *.class
 **/out/
+PropertyManagementSystem_Module9_Backup/
+*.zip

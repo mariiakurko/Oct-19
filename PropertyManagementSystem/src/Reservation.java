@@ -28,6 +28,14 @@ public class Reservation {
         return propertyId;
     }
 
+    public String getGuestName() {
+    return guestName;
+    }
+
+    public double getNightlyRate() {
+    return nightlyRate;
+    }
+
     public LocalDate getCheckIn() {
         return checkIn;
     }

@@ -12,6 +12,8 @@ import javax.swing.JTextField;
 import javax.swing.JComboBox;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 // Mariia Svereniak 
 // Property Management System
@@ -19,6 +21,9 @@ import java.time.format.DateTimeParseException;
 public class PropertyGUI extends JFrame {
 
     public PropertyGUI() {
+
+        DatabaseManager databaseManager = new DatabaseManager();
+        final String[] databasePath = {null};
         PropertyManager manager = new PropertyManager();
         setTitle("Property Management System");
         setSize(800, 600);
@@ -26,7 +31,7 @@ public class PropertyGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JLabel titleLabel = new JLabel("Property Management System");
         JButton displayButton = new JButton("Display Properties");
-        JButton loadButton = new JButton("Load Properties");
+        JButton loadButton = new JButton("Connect Database");
         JButton addButton = new JButton("Add Property");
         JButton removeButton = new JButton("Remove Property");
         JButton updateButton = new JButton("Update Property");
@@ -81,7 +86,7 @@ public class PropertyGUI extends JFrame {
         mainPanel.add(updateButton);
         mainPanel.add(reservationButton);
 
-        // Keep the title above the buttons
+        // to keep the title above the buttons
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(headerPanel, BorderLayout.NORTH);
         topPanel.add(mainPanel, BorderLayout.CENTER);
@@ -91,44 +96,103 @@ public class PropertyGUI extends JFrame {
         JTextArea propertyArea = new JTextArea();
         propertyArea.setEditable(false);
         propertyArea.setText("Property records will appear here...");
-        
-        // Display Properties button
-        displayButton.addActionListener(e -> {
-            propertyArea.setText(manager.displayProperties());});
 
+        // Create the table for displaying properties
+        String[] columnNames = {
+            "ID", "Address", "Type", "Nightly Rate",
+                "Bedrooms", "Available", "Owner"};
+
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+        return false;
+    }
+};
+
+JTable propertyTable = new JTable(tableModel);
+propertyTable.setSelectionMode(
+    javax.swing.ListSelectionModel.SINGLE_SELECTION
+);
+        
+        // Display Properties button PATH PropertyManagementSystem/properties.db
+        displayButton.addActionListener(e -> {
+
+        if (databasePath[0] == null) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Please connect to a database first!"
+        );
+        return;
+        }
+
+        try {
+        java.util.ArrayList<Property> properties =
+            databaseManager.getAllProperties(databasePath[0]);
+
+        // Clear previous rows before displaying properties
+        tableModel.setRowCount(0);
+
+        for (Property property : properties) {
+            tableModel.addRow(new Object[] {
+            property.getPropertyId(),
+            property.getAddress(),
+            property.getPropertyType(),
+            property.getNightlyRate(),
+            property.getBedrooms(),
+            property.isAvailable() ? "Available" : "Unavailable",
+            property.getOwner()
+    });
+} }
+        catch (java.sql.SQLException ex) {
+            JOptionPane.showMessageDialog(
+            this,
+            "Error displaying properties: " + ex.getMessage());}
+});
         
         // Load Property Button
         loadButton.addActionListener(e -> {
             String fileName = JOptionPane.showInputDialog(
-                this, "Enter file name or path:"
-            ); 
+            this, "Enter SQLite database file path:"
+            );
                 if (fileName == null) {
                     return;}
                 if (fileName.isBlank()) {
                 JOptionPane.showMessageDialog(this, "Please enter a filename.");
                     return; }
+        try {
+        // Check that the SQLite database can be accessed
+        databaseManager.getAllProperties(fileName);
 
-                if (manager.loadProperties(fileName)) {
-                JOptionPane.showMessageDialog(
-                    this,
-                        "Properties loaded successfully!",
-                            "Success",
-                                JOptionPane.INFORMATION_MESSAGE
-                 );
-                }   // PropertyManagementSystem/properties.txt - file directory
-                else { 
-                    JOptionPane.showMessageDialog(
-                        this,
-                            "Try Again!",
-                                "Failure!",
-                                JOptionPane.INFORMATION_MESSAGE
-                 );
+        // Save the database path
+        databasePath[0] = fileName;
 
-                }
-        });
+        JOptionPane.showMessageDialog(
+        this,
+        "Database connected successfully!",
+        "Success",
+        JOptionPane.INFORMATION_MESSAGE
+        ); } 
+        catch (java.sql.SQLException ex) {
+    JOptionPane.showMessageDialog(
+        this,
+        "Cannot connect to database: " + ex.getMessage(),
+        "Connection Failed",
+        JOptionPane.ERROR_MESSAGE
+    );
+}
+                
+                });
 
         // Add property button    
         addButton.addActionListener(e -> {
+            // Make sure a database is connected before adding a property
+        if (databasePath[0] == null) {
+            JOptionPane.showMessageDialog(
+            this,
+                "Please connect to a database first!"
+                );
+                return;
+        }
                 JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
                 JTextField addressField = new JTextField(50);
                     formPanel.add(new JLabel("Address:"));
@@ -273,14 +337,22 @@ public class PropertyGUI extends JFrame {
             owner
         );
 
-        if (manager.addProperty(property)) {
-            JOptionPane.showMessageDialog(this,
-            "Property added successfully!");
-        } 
-        else {
-            JOptionPane.showMessageDialog(this,
-             "A property with this ID already exists!");
-        }
+        try {
+    // Save the new property directly to SQLite
+    databaseManager.addProperty(databasePath[0], property);
+
+        JOptionPane.showMessageDialog(
+        this,
+        "Property added successfully!"
+        );} 
+        catch (java.sql.SQLException ex) {
+            JOptionPane.showMessageDialog(
+            this,
+                "Could not add property: " + ex.getMessage(),
+                    "Database Error",
+        JOptionPane.ERROR_MESSAGE
+    );
+}
     }); // End of Add Property listener
 
        
@@ -288,45 +360,19 @@ public class PropertyGUI extends JFrame {
     
     // Remove Property listener
         removeButton.addActionListener(e -> {
-            String idText = JOptionPane.showInputDialog(
-                this,
-                    "Enter Property ID to remove:"
-            );
+            // Make sure a property is selected in the table
+            int selectedRow = propertyTable.getSelectedRow();
 
-            if (idText == null) {
-                return;
-            }
-            idText = idText.trim();
-            if (!idText.matches("\\d+")) {
-            JOptionPane.showMessageDialog(this,
-                "Property ID must be a whole number!");
-                    return;
-}           
+            if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(
+            this,
+            "Please select a property from the table first!");
+    return;
+}
+            // Get the property ID from the selected row
+            int propertyId = (int) propertyTable.getValueAt(selectedRow, 0);
 
-            int propertyId;
-
-        try {
-        propertyId = Integer.parseInt(idText);
-
-        if (propertyId <= 0) {
-        JOptionPane.showMessageDialog(this,
-            "Property ID must be greater than zero!");
-            return;
-        }
-
-    } catch (NumberFormatException ex) {
-    JOptionPane.showMessageDialog(this,
-        "Invalid Property ID!");
-        return;
-        }
-
-        Property propertyToRemove = manager.findProperty(propertyId);
-
-        if (propertyToRemove == null) {
-            JOptionPane.showMessageDialog(this,
-             "Property not found!");
-                return;
-            }
+        
 
         int confirm = JOptionPane.showConfirmDialog(
             this,
@@ -340,64 +386,90 @@ public class PropertyGUI extends JFrame {
             return; }
 
         // attempt to remove the property
-        if (manager.removeProperty(propertyId)) {
-            JOptionPane.showMessageDialog(
-                this,
-                    "Property removed successfully!",
-                        "Success",
-                            JOptionPane.INFORMATION_MESSAGE
-            );
-        } 
-        else {
-            JOptionPane.showMessageDialog(
-             this,
-                "Cannot remove this property. It may have an existing reservation.",
-                    "Removal Failed",
-                        JOptionPane.ERROR_MESSAGE
-            );
-        }
+        try {
+    if (databasePath[0] == null) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Please connect to a database first!"
+        );
+        return;
+    }
+
+    if (databaseManager.removeProperty(databasePath[0], propertyId)) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Property removed successfully!",
+            "Success",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+
+        // Remove the deleted property from the table
+        tableModel.removeRow(selectedRow);
+
+    } else {
+        JOptionPane.showMessageDialog(
+            this,
+            "Cannot remove this property. It may have an existing reservation.",
+            "Removal Failed",
+            JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+}   catch (java.sql.SQLException ex) {
+    JOptionPane.showMessageDialog(
+        this,
+        "Database error: " + ex.getMessage(),
+        "Removal Failed",
+        JOptionPane.ERROR_MESSAGE
+    );
+}
 
 }); // end of remove property lostener
 
         // Update Property button
         updateButton.addActionListener(e -> {
-            String idText = JOptionPane.showInputDialog(
-                this,
-                    "Enter Property ID to update:"
-            );
 
-        if (idText == null) {
-            return;
+            // Make sure a property is selected
+        int selectedRow = propertyTable.getSelectedRow();
+
+            if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(
+            this,
+                "Please select a property from the table first!");
+    return;
+}
+
+            // get the id of the selected property
+            int propertyId = (int) propertyTable.getValueAt(selectedRow, 0);
+
+        Property propertyToUpdate = null;
+
+        try {
+            if (databasePath[0] == null) {
+        JOptionPane.showMessageDialog(
+            this,
+            "Please connect to a database first!"
+        );
+        return;
+    }
+
+        java.util.ArrayList<Property> properties =
+        databaseManager.getAllProperties(databasePath[0]);
+
+        for (Property property : properties) {
+        if (property.getPropertyId() == propertyId) {
+            propertyToUpdate = property;
+            break;
         }
-
-        idText = idText.trim();
-
-        if (!idText.matches("\\d+")) {
-            JOptionPane.showMessageDialog(this,
-                "Property ID must be a whole number!");
-            return;
-        }
-
-        int propertyId;
-
-            try {
-            propertyId = Integer.parseInt(idText);
-
-            if (propertyId <= 0) {
-                JOptionPane.showMessageDialog(this,
-                    "Property ID must be greater than zero!");
-                        return;
-            }
-
-         } 
-        catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid Property ID!");
-                return;
-        }
-
+    }}       
         
-
-        Property propertyToUpdate = manager.findProperty(propertyId);
+        catch (java.sql.SQLException ex) {
+            JOptionPane.showMessageDialog(
+                this,
+                    "Error loading property: " + ex.getMessage(),
+                        "Database Error",
+                            JOptionPane.ERROR_MESSAGE);
+        return;}
 
         if (propertyToUpdate == null) {
             JOptionPane.showMessageDialog(this, "Property not found!");
@@ -540,10 +612,27 @@ public class PropertyGUI extends JFrame {
         propertyToUpdate.setBedrooms(newBedrooms);
         propertyToUpdate.setAvailable(newAvailable);
         propertyToUpdate.setOwner(newOwner);
-        
+
+        try {
+    if (databaseManager.updateProperty(databasePath[0], propertyToUpdate)) {
         JOptionPane.showMessageDialog(
             this,
-                "Property updated successfully!");
+            "Property updated successfully!"
+        );
+    } else {
+        JOptionPane.showMessageDialog(
+            this,
+            "Property not found in database!"
+        );
+    }} 
+        catch (java.sql.SQLException ex) {
+            JOptionPane.showMessageDialog(
+                this,
+                    "Database error: " + ex.getMessage(),
+                        "Update Failed",
+                            JOptionPane.ERROR_MESSAGE
+            );
+        }
 
 }); // End of Update Property listener
 
@@ -603,7 +692,30 @@ public class PropertyGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Invalid Property ID!");
         return;}
 
-        Property selectedProperty = manager.findProperty(propertyId);
+        Property selectedProperty = null;
+
+        try {
+            if (databasePath[0] == null) {
+        JOptionPane.showMessageDialog(this,
+            "Please connect to a database first!");
+        return;
+            }
+
+        java.util.ArrayList<Property> properties =
+            databaseManager.getAllProperties(databasePath[0]);
+
+            for (Property property : properties) {
+                if (property.getPropertyId() == propertyId) {
+                    selectedProperty = property;
+                    break;
+                }
+            }
+
+        } catch (java.sql.SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                "Error loading property: " + ex.getMessage());
+            return;
+        }
 
         if (selectedProperty == null) {
             JOptionPane.showMessageDialog(this,
@@ -637,15 +749,34 @@ public class PropertyGUI extends JFrame {
         catch (DateTimeParseException ex) {
             JOptionPane.showMessageDialog(this,
                 "Please enter valid dates in YYYY-MM-DD format!");
-        return;}         
+        return;}       
+        
+        // Prepare the reservation for SQLite
+        Reservation newReservation = new Reservation(
+            propertyId,
+            guestName,
+            checkIn,
+            checkOut,
+            selectedProperty.getNightlyRate()
+        );
     
         // Create the reservation
-            boolean created = manager.createReservation(
-                propertyId,
-                guestName,
-                checkIn,
-                checkOut
-        );
+            boolean created;
+
+            try {
+                created = databaseManager.addReservation(
+                    databasePath[0],
+                    newReservation
+                );
+            } catch (java.sql.SQLException ex) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Database error: " + ex.getMessage(),
+                    "Reservation Failed",
+                    JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
 
         if (created) {
             Reservation summary = new Reservation(
@@ -654,6 +785,8 @@ public class PropertyGUI extends JFrame {
             checkIn,
             checkOut,
             selectedProperty.getNightlyRate());
+
+
         JOptionPane.showMessageDialog(this,
             "Reservation created successfully!"
             + "\nGuest: " + guestName
@@ -677,7 +810,7 @@ public class PropertyGUI extends JFrame {
         // Make the property list scrollable
         propertyArea.setBorder(
         javax.swing.BorderFactory.createEmptyBorder(15, 20, 15, 20));
-        JScrollPane scrollPane = new JScrollPane(propertyArea);
+        JScrollPane scrollPane = new JScrollPane(propertyTable);
         add(scrollPane, BorderLayout.CENTER);
 
         // Bottom panel for the Exit button
