@@ -6,8 +6,29 @@ import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+/**
+ * Manages the connection between the Property Management System
+ * and the SQLite database.
+ * Provides methods to load, add, update, and remove properties,
+ * as well as check and save guest reservations.
+ */
 public class DatabaseManager {
-    // connecting SQLite database using a path provided by the user
+
+    /**
+     * Creates a DatabaseManager for handling SQLite operations.
+     */
+    public DatabaseManager() {
+    }
+   
+    /**
+     * Connects to an existing SQLite database using the provided file path.
+     * Checks that the path is valid and the database file can be read.
+     *
+     * @param databasePath the path to the SQLite database file
+     * @return a Connection object for the database
+     * @throws SQLException if the path is invalid, the file cannot be
+     *         accessed, or the database connection fails
+     */
 public Connection connect(String databasePath) throws SQLException {
     if (databasePath == null || databasePath.isBlank()) {
     throw new SQLException("Please enter a database file path.");
@@ -21,7 +42,15 @@ public Connection connect(String databasePath) throws SQLException {
     return DriverManager.getConnection(url);
 }
 
-    // Read all property records from the SQLite database
+    /**
+     * Retrieves all property records from the SQLite database.
+     * Converts each database record into a Property object
+     * and adds it to a list.
+     *
+     * @param databasePath the path to the SQLite database file
+     * @return an ArrayList containing all properties in the database
+     * @throws SQLException if a database error occurs
+     */
 public ArrayList<Property> getAllProperties(String databasePath) throws SQLException {
 
     ArrayList<Property> properties = new ArrayList<>();
@@ -49,7 +78,15 @@ public ArrayList<Property> getAllProperties(String databasePath) throws SQLExcep
 
     return properties;
 }
-    // Save a new property to the SQLite database
+    /**
+     * Adds a new property record to the SQLite database.
+     * Uses a prepared SQL statement to save the property information.
+     *
+     * @param databasePath the path to the SQLite database file
+     * @param property the Property object to save
+     * @throws SQLException if the property cannot be saved
+     *         or a database error occurs
+     */
 public void addProperty(String databasePath, Property property)
         throws SQLException {
 
@@ -71,7 +108,15 @@ public void addProperty(String databasePath, Property property)
         statement.executeUpdate();
     }
 }
-    // Remove a property from the SQLite database
+    /**
+     * Removes a property from the SQLite database.
+     * Prevents deletion if the property has existing reservations.
+     *
+     * @param databasePath the path to the SQLite database file
+     * @param propertyId the ID of the property to remove
+     * @return true if the property was removed, otherwise false
+     * @throws SQLException if a database error occurs
+     */
 public boolean removeProperty(String databasePath, int propertyId)
         throws SQLException {
 
@@ -93,7 +138,15 @@ public boolean removeProperty(String databasePath, int propertyId)
     }
 }
 
-    // Check if a property has any reservations
+    /**
+     * Checks whether a property has any reservations
+     * stored in the SQLite database.
+     *
+     * @param databasePath the path to the SQLite database file
+     * @param propertyId the ID of the property to check
+     * @return true if the property has reservations, otherwise false
+     * @throws SQLException if a database error occurs
+     */
 public boolean hasReservations(String databasePath, int propertyId)
         throws SQLException {
 
@@ -110,7 +163,16 @@ public boolean hasReservations(String databasePath, int propertyId)
     }
 }
 
-        // Update an existing property in the SQLite database
+    /**
+     * Updates an existing property in the SQLite database.
+     * Saves the updated address, type, nightly rate,
+     * bedrooms, availability, and owner information.
+     *
+     * @param databasePath the path to the SQLite database file
+     * @param property the Property object containing updated information
+     * @return true if the property was updated, otherwise false
+     * @throws SQLException if a database error occurs
+     */
 public boolean updateProperty(String databasePath, Property property)
         throws SQLException {
 
@@ -137,7 +199,16 @@ public boolean updateProperty(String databasePath, Property property)
 
 }   
 
-    // Save a guest reservation to SQLite
+    /**
+     * Saves a new guest reservation to the SQLite database.
+     * Checks that the property exists, is available, and does not
+     * have another reservation with overlapping dates.
+     *
+     * @param databasePath the path to the SQLite database file
+     * @param reservation the Reservation object to save
+     * @return true if the reservation was saved, otherwise false
+     * @throws SQLException if a database error occurs
+     */
 public boolean addReservation(String databasePath, Reservation reservation)
         throws SQLException {
 

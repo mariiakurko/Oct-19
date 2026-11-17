@@ -1,23 +1,37 @@
-
 import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 
+/**
+ * Manages properties and reservations in the Property Management System.
+ * Provides methods to add, find, remove, and display properties,
+ * as well as create and display reservations.
+ */
 public class PropertyManager {
 
     // Lists to store properties and reservations
     private ArrayList<Property> properties;
     private ArrayList<Reservation> reservations;
 
-    // Constructor creates empty lists
+    /**
+     * Creates a new PropertyManager with empty lists
+     * for properties and reservations.
+     */
     public PropertyManager() {
         properties = new ArrayList<>();
         reservations = new ArrayList<>();
     }
 
-    // Add a new property
+    /**
+     * Adds a new property to the list.
+     * Checks that the property information is valid
+     * and that the property ID is not already being used.
+     *
+     * @param property the property to add
+     * @return true if the property was added, otherwise false
+     */
     public boolean addProperty(Property property) {
 
         if (property == null) {
@@ -46,7 +60,12 @@ public class PropertyManager {
         return true;
     }
 
-    // Find a property by its ID
+    /**
+     * Searches for a property using its ID.
+     *
+     * @param propertyId the ID of the property to find
+     * @return the matching Property object, or null if not found
+     */
     public Property findProperty(int propertyId) {
 
         for (Property property : properties) {
@@ -58,7 +77,12 @@ public class PropertyManager {
         return null;
     }
 
-    // Remove a property
+    /**
+     * Removes a property from the list.
+     *
+     * @param propertyId the ID of the property to remove
+     * @return true if the property was removed, otherwise false
+     */
     public boolean removeProperty(int propertyId) {
 
         Property property = findProperty(propertyId);
@@ -78,7 +102,13 @@ public class PropertyManager {
         return true;
     }
 
-    // Display all properties
+    /**
+     * Displays information about all properties in the list.
+     * Returns a message if no properties are available.
+     *
+     * @return a string containing all property information,
+     *         or a message if the list is empty
+     */
     public String displayProperties() {
 
         if (properties.isEmpty()) {
@@ -94,12 +124,22 @@ public class PropertyManager {
         return result;
     }
 
-    // Get the number of properties
+    /**
+     * Gets the number of properties in the list.
+     *
+     * @return the property count
+     */
     public int getPropertyCount() {
         return properties.size();
     }
 
-    // Load property information from a text file
+    /**
+     * Loads property information from a text file.
+     *
+     * @param fileName the name of the file to read
+     * @return true if the file was read successfully, otherwise false
+     */
+
     public boolean loadProperties(String fileName) {
 
         if (fileName == null || fileName.isBlank()) {
@@ -174,7 +214,17 @@ public class PropertyManager {
         }
     }
 
-    // Check if requested dates overlap with another reservation
+    /**
+     * Checks whether a property is available for the requested dates.
+     * Prevents overlapping reservations for the same property.
+     * Allows a new guest to check in on another guest's checkout date.
+     *
+     * @param propertyId the ID of the property
+     * @param checkIn the requested check-in date
+     * @param checkOut the requested check-out date
+     * @return true if the dates are valid and do not overlap
+     *         with another reservation, otherwise false
+     */
     public boolean isDateAvailable(int propertyId,
                                    LocalDate checkIn,
                                    LocalDate checkOut) {
@@ -200,7 +250,18 @@ public class PropertyManager {
         return true;
     }
 
-    // Create a guest reservation
+    /**
+     * Creates a new guest reservation for a property.
+     * Checks that the property exists, is available, and that
+     * the guest name and reservation dates are valid.
+     * Also prevents overlapping reservations.
+     *
+     * @param propertyId the ID of the property being reserved
+     * @param guestName the name of the guest
+     * @param checkIn the reservation check-in date
+     * @param checkOut the reservation check-out date
+     * @return true if the reservation was created, otherwise false
+     */
     public boolean createReservation(int propertyId,
                                      String guestName,
                                      LocalDate checkIn,
@@ -247,7 +308,13 @@ public class PropertyManager {
         return true;
     }
 
-    // Display reservations
+    /**
+     * Displays information about all guest reservations.
+     * Returns a message if no reservations have been created.
+     *
+     * @return a string containing all reservation details,
+     *         or a message if the reservation list is empty
+     */
     public String displayReservations() {
 
         if (reservations.isEmpty()) {

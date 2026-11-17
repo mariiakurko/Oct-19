@@ -2,11 +2,29 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 
+/**
+ * Tests the connection between Java and the SQLite database.
+ * Checks whether the database can be accessed and displays
+ * the number of property records stored in it.
+ */
 public class DatabaseConnectionTest {
 
+    /**
+     * Creates a DatabaseConnectionTest object.
+     */
+    public DatabaseConnectionTest() {
+    }
+
+        /**
+     * Runs a database connection test.
+     * Connects to SQLite and displays the number of properties
+     * stored in the database and loaded as Java objects.
+     *
+     * @param args command-line arguments containing the database
+     *             file path as the first argument
+     */
     public static void main(String[] args) {
 
         DatabaseManager db = new DatabaseManager();

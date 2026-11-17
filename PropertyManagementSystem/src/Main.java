@@ -1,10 +1,28 @@
-
 import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Runs the console version of the Property Management System.
+ * Provides a menu for managing properties and guest reservations.
+ * Uses PropertyManager to handle property information and bookings.
+ */
 public class Main {
 
+    /**
+     * Creates a Main object for the console-based
+     * Property Management System.
+     */
+    public Main() {
+    }
+
+        /**
+     * Starts the console-based Property Management System.
+     * Displays the main menu and processes the user's choices
+     * until the user selects Exit.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -76,7 +94,15 @@ public class Main {
         scanner.close();
     }
 
-    // Add a new rental property
+    /**
+     * Adds a new rental property using information entered by the user.
+     * Validates the property details before saving the property
+     * in PropertyManager.
+     *
+     * @param scanner the Scanner used to read user input
+     * @param manager the PropertyManager that stores the properties
+     * @return true if the property was added, otherwise false
+     */
     public boolean addNewProperty(Scanner scanner, PropertyManager manager) {
 
         System.out.println("\n===== ADD NEW PROPERTY =====");
@@ -213,7 +239,15 @@ public class Main {
         return false;
     }
 
-    // Remove a property using its ID
+    /**
+     * Removes a property using its ID.
+     * Asks the user for confirmation before deleting the property.
+     * A property cannot be removed if it has existing reservations.
+     *
+     * @param scanner the Scanner used to read user input
+     * @param manager the PropertyManager that stores the properties
+     * @return true if the property was removed, otherwise false
+     */
     public boolean deleteProperty(Scanner scanner, PropertyManager manager) {
 
         System.out.println("\n===== REMOVE PROPERTY =====");
@@ -261,7 +295,15 @@ public class Main {
         return false;
     }
 
-    // Update an existing property's information
+    /**
+     * Updates an existing property's information.
+     * Allows the user to choose which field to update
+     * and validates the new information before saving it.
+     *
+     * @param scanner the Scanner used to read user input
+     * @param manager the PropertyManager that stores the properties
+     * @return true if the property was updated, otherwise false
+     */
     public boolean updateProperty(Scanner scanner, PropertyManager manager) {
 
         System.out.println("\n===== UPDATE PROPERTY =====");
@@ -393,7 +435,15 @@ public class Main {
         return false;
     }
 
-    // Create a reservation and calculate its cost
+    /**
+     * Creates a guest reservation for an available property.
+     * Checks the guest information and reservation dates,
+     * and prevents bookings with overlapping dates.
+     *
+     * @param scanner the Scanner used to read user input
+     * @param manager the PropertyManager that manages reservations
+     * @return true if the reservation was created, otherwise false
+     */
     public boolean createGuestReservation(Scanner scanner,
                                           PropertyManager manager) {
 

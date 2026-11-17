@@ -15,11 +15,21 @@ import java.time.format.DateTimeParseException;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-// Mariia Svereniak 
-// Property Management System
+/**
+ * Creates the graphical user interface for the Property Management System.
+ * Allows users to connect to SQLite, display properties, add, update,
+ * and remove properties, and create guest reservations.
+ *
+ * @author Mariia Svereniak
+ */
 
 public class PropertyGUI extends JFrame {
-
+    
+    /**
+     * Creates the main application window.
+     * Sets up the buttons, property table, and input forms.
+     * Connects user actions to the database operations.
+     */
     public PropertyGUI() {
 
         DatabaseManager databaseManager = new DatabaseManager();
@@ -842,6 +852,12 @@ propertyTable.setSelectionMode(
         );
     }
 
+    /**
+     * Starts the Property Management System application.
+     * Opens the main graphical user interface.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
         new PropertyGUI();
     }
